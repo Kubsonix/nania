@@ -2,6 +2,9 @@
 #include <avr/sfr_defs.h>
 #include <util/delay.h>
 #include "HD44780.h"
+#include "i2chw/i2cmaster.h"
+#include "ds1307.h"
+#include <avr/interrupt.h>
 
 #define PREV_BUTTON_PORT 	PORTD
 #define PREV_BUTTON_PIN 	PIND
@@ -37,6 +40,14 @@ char menu_opt[MAX_OPTIONS][15] = { "Pokaz czas",
 
 int main(void) {
 	PORTD = 0xF0;
+	sei();
+	uint8_t year = 0;
+	uint8_t month = 0;
+	uint8_t day = 0;
+	uint8_t hour = 0;
+	uint8_t minute = 0;
+	uint8_t second = 0;
+	ds1307_setdate(15, 11, 06, 18, 21, 10);
 
 	LCD_Initalize();
 	LCD_Clear();
@@ -46,7 +57,13 @@ int main(void) {
 	LCD_GoTo(2,1);
 	LCD_WriteText(&menu_opt[item+1][0]);
 	while (1){
-		check_buttons();
+		ds1307_getdate(&year, &month, &day, &hour, &minute, &second);
+		char buf[50];
+		sprintf(buf, "%d/%d/%d %d:%d:%d", year, month, day, hour, minute, second);
+		LCD_WriteText(&buf);
+		_delay_ms(1000);
+		LCD_Clear();
+		LCD_GoTo(0,0);
 	}
 }
 
