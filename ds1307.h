@@ -9,6 +9,7 @@ Please refer to LICENSE file for licensing information.
 References: parts of the code taken from https://github.com/adafruit/RTClib
 */
 
+#include <stdint.h>
 
 #ifndef DS1307_H
 #define DS1307_H

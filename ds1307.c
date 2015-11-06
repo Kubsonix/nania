@@ -8,13 +8,12 @@ Please refer to LICENSE file for licensing information.
 */
 
 
+#include "ds1307.h"
+
 #include "avr/io.h"
 #include "avr/pgmspace.h"
 #include "util/delay.h"
-
-#include "ds1307.h"
-
-//path to i2c fleury lib
+#include "stdio.h"
 #include "i2chw/i2cmaster.h"
 
 /*

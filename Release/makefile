@@ -31,56 +31,56 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 LSS += \
-wyswietlacz.lss \
+projekt.lss \
 
 FLASH_IMAGE += \
-wyswietlacz.hex \
+projekt.hex \
 
 EEPROM_IMAGE += \
-wyswietlacz.eep \
+projekt.eep \
 
 SIZEDUMMY += \
 sizedummy \
 
 
 # All Target
-all: wyswietlacz.elf secondary-outputs
+all: projekt.elf secondary-outputs
 
 # Tool invocations
-wyswietlacz.elf: $(OBJS) $(USER_OBJS)
+projekt.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: AVR C Linker'
-	avr-gcc -Wl,-Map,wyswietlacz.map -mmcu=atmega8 -o "wyswietlacz.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	avr-gcc -Wl,-Map,projekt.map -mmcu=atmega8 -o "projekt.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-wyswietlacz.lss: wyswietlacz.elf
+projekt.lss: projekt.elf
 	@echo 'Invoking: AVR Create Extended Listing'
-	-avr-objdump -h -S wyswietlacz.elf  >"wyswietlacz.lss"
+	-avr-objdump -h -S projekt.elf  >"projekt.lss"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-wyswietlacz.hex: wyswietlacz.elf
+projekt.hex: projekt.elf
 	@echo 'Create Flash image (ihex format)'
-	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex wyswietlacz.elf  "wyswietlacz.hex"
+	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex projekt.elf  "projekt.hex"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-wyswietlacz.eep: wyswietlacz.elf
+projekt.eep: projekt.elf
 	@echo 'Create eeprom image (ihex format)'
-	-avr-objcopy -j .eeprom --no-change-warnings --change-section-lma .eeprom=0 -O ihex wyswietlacz.elf  "wyswietlacz.eep"
+	-avr-objcopy -j .eeprom --no-change-warnings --change-section-lma .eeprom=0 -O ihex projekt.elf  "projekt.eep"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-sizedummy: wyswietlacz.elf
+sizedummy: projekt.elf
 	@echo 'Invoking: Print Size'
-	-avr-size --format=avr --mcu=atmega8 wyswietlacz.elf
+	-avr-size --format=avr --mcu=atmega8 projekt.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(ASM_DEPS)$(EEPROM_IMAGE)$(FLASH_IMAGE)$(ELFS)$(LSS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS) wyswietlacz.elf
+	-$(RM) $(OBJS)$(C_DEPS)$(ASM_DEPS)$(EEPROM_IMAGE)$(FLASH_IMAGE)$(ELFS)$(LSS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS) projekt.elf
 	-@echo ' '
 
 secondary-outputs: $(LSS) $(FLASH_IMAGE) $(EEPROM_IMAGE) $(SIZEDUMMY)
