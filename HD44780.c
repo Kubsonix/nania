@@ -1,15 +1,3 @@
-//-------------------------------------------------------------------------------------------------
-// Wywietlacz alfanumeryczny ze sterownikiem HD44780
-// Sterowanie w trybie 4-bitowym bez odczytu flagi zajêtoci
-// z dowolnym przypisaniem sygna³ów steruj¹cych
-// Plik : HD44780.c
-// Mikrokontroler : Atmel AVR
-// Kompilator : avr-gcc
-// Autor : Rados³aw Kwiecieñ
-// ród³o : http://radzio.dxp.pl/hd44780/
-// Data : 24.03.2007
-//-------------------------------------------------------------------------------------------------
-
 #include "HD44780.h"
 //-------------------------------------------------------------------------------------------------
 //

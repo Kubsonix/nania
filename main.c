@@ -7,6 +7,7 @@
 #include "i2chw/i2cmaster.h"
 #include "ds1307.h"
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 
 #define PREV_BUTTON_PORT 	PORTD
 #define PREV_BUTTON_PIN 	PIND
@@ -24,7 +25,7 @@
 #define SEL_BUTTON_PIN		PIND
 #define SEL_BUTTON_BIT		PD7
 
-#define MAX_OPTIONS			5
+#define MAX_OPTIONS			6
 #define BTN_BOUNCE 			20
 
 static void display_opt(unsigned char);
@@ -32,7 +33,8 @@ static void check_buttons(void);
 static void show_time(void);
 static void set_time(void);
 static void set_date(void);
-//static void set_alarm(void);
+static void set_alarm(void);
+static void check_alarm(void);
 //static void act_alarm(void);
 
 unsigned char item = 0, item_old = 0; //current menu position and earlier menu position
@@ -51,7 +53,8 @@ char menu_opt[MAX_OPTIONS][15] = { "Pokaz czas",
 								   "Ustaw czas",
 								   "Ustaw date",
 								   "Ustaw alarm",
-								   "Wl/Wyl alarm"
+								   "Ustaw komunikat",
+								   "Dzien dobry!"
 };
 
 uint8_t year = 0; //variable contains a current year
@@ -60,6 +63,10 @@ uint8_t day = 0; //variable contains a current day
 uint8_t hour = 0; //variable contains a current hour
 uint8_t minute = 0; //variable contains a current minute
 uint8_t second = 0; //variable contains a current second
+
+uint8_t a1_hour=0;
+uint8_t a1_minute=0;
+uint8_t a1_second=0;
 
 static int exit = 0;
 static int choice = 0;
@@ -77,7 +84,7 @@ int main(void) {
 	LCD_GoTo(2,1);
 	LCD_WriteText(&menu_opt[item+1][0]);
 
-	while (1){
+	while(1) {
 		check_buttons();
 	}
 }
@@ -139,6 +146,9 @@ void check_buttons(void) {
 		if (item == 2) {
 			set_date();
 		}
+		if (item == 3) {
+			set_alarm();
+		}
 		_delay_ms(BTN_BOUNCE);
 	}
 
@@ -189,6 +199,8 @@ void show_time(void) {
 
 		_delay_ms(200);
 
+		check_alarm();
+
 		if(bit_is_clear(BACK_BUTTON_PIN, BACK_BUTTON_BIT)) {
 			_delay_ms(BTN_BOUNCE);
 			while(bit_is_clear(BACK_BUTTON_PIN, BACK_BUTTON_BIT)) {};
@@ -220,7 +232,7 @@ void set_time(void) {
 	choice = 0;
 	while(exit == 0) {
 		char bufor[15];
-		sprintf(bufor, "%d/%d/%d", hour, minute, second);
+		sprintf(bufor, "%d:%d:%d", hour, minute, second);
 		LCD_Clear();
 		LCD_GoTo(0,0);
 		LCD_WriteText(&bufor[0]);
@@ -317,7 +329,6 @@ void set_time(void) {
 
 void set_date(void) {
 	ds1307_getdate(&year, &month, &day, &hour, &minute, &second);
-
 	exit =0;
 	choice = 0;
 	while(exit==0) {
@@ -411,4 +422,94 @@ void set_date(void) {
 		_delay_ms(100);
 	}
 	ds1307_setdate(year, month, day, hour, minute, second);
+}
+
+void set_alarm(void) {
+	//uint8_t a2_hour;
+	//uint8_t a2_minute;
+	//uint8_t a2_second;
+
+	choice = 0;
+	exit = 0;
+
+	while(exit == 0) {
+		char bufor[15];
+		sprintf(bufor, "%d:%d", a1_hour, a1_minute);
+
+		LCD_Clear();
+		LCD_GoTo(0, 1);
+		LCD_WriteText(&bufor[0]);
+
+		if (choice == 0) {
+			LCD_GoTo(0,0);
+			LCD_WriteText("Ustaw godzine");
+		}
+
+		if (choice == 1) {
+			LCD_GoTo(0,0);
+			LCD_WriteText("Ustaw minute");
+		}
+
+		if(bit_is_clear(PREV_BUTTON_PIN, PREV_BUTTON_BIT)) {
+			_delay_ms(BTN_BOUNCE);
+			while(bit_is_clear(PREV_BUTTON_PIN, PREV_BUTTON_BIT)) {};
+			if (choice==0) {
+				if (a1_hour < 23) {
+					a1_hour = a1_hour + 1;
+				}else a1_hour = 1;
+			}
+			if (choice==1) {
+				if (a1_minute < 59) {
+					a1_minute = a1_minute + 1;
+				}else a1_minute = 1;
+			}
+			_delay_ms(BTN_BOUNCE);
+		}
+
+		if(bit_is_clear(SEL_BUTTON_PIN, SEL_BUTTON_BIT)){
+			_delay_ms(BTN_BOUNCE);
+			while(bit_is_clear(SEL_BUTTON_PIN, SEL_BUTTON_BIT)){};;
+			_delay_ms(BTN_BOUNCE);
+			choice=choice+1;
+			if (choice > 2) {
+				choice=0;
+			}
+		}
+
+		if(bit_is_clear(BACK_BUTTON_PIN, BACK_BUTTON_BIT)){
+			exit=1;
+			_delay_ms(BTN_BOUNCE);
+			while(bit_is_clear(BACK_BUTTON_PIN, BACK_BUTTON_BIT)) {};
+			if(item < (MAX_OPTIONS-1)){
+				LCD_Clear();
+				LCD_GoTo(0,0);
+				LCD_WriteText("> ");
+				LCD_WriteText(&menu_opt[item][0]);
+				LCD_GoTo(2,1);
+				LCD_WriteText(&menu_opt[item+1][0]);
+			}else {
+				LCD_Clear();
+				LCD_GoTo(2,0);
+				LCD_WriteText(&menu_opt[item-1][0]);
+				LCD_GoTo(0,1);
+				LCD_WriteText("> ");
+				LCD_WriteText(&menu_opt[item][0]);
+			}
+			_delay_ms(BTN_BOUNCE);
+		}
+		_delay_ms(100);
+	}
+}
+
+void check_alarm(void) {
+	if (hour == a1_hour && minute == a1_minute) {
+		while(exit==0) {
+			LCD_Clear();
+			LCD_WriteText("ALARM 1");
+			_delay_ms(200);
+			if(bit_is_clear(BACK_BUTTON_PIN, BACK_BUTTON_BIT)){
+				exit = 1;
+			}
+		}
+	}
 }
