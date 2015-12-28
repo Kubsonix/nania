@@ -53,8 +53,7 @@ char menu_opt[MAX_OPTIONS][15] = { "Pokaz czas",
 								   "Ustaw czas",
 								   "Ustaw date",
 								   "Ustaw alarm",
-								   "Ustaw komunikat",
-								   "Dzien dobry!"
+								   "Ustaw komunikat"
 };
 
 uint8_t year = 0; //variable contains a current year
